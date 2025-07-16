@@ -23,8 +23,12 @@ clinician_data = []
 with st.form("clinician_form"):
     clinician_type = st.selectbox("Select clinician type", CLINICIAN_TYPES)
 
+    # Initialize defaults
     rotations = None
+    total_day = 0
+    total_night = 0
 
+    # Only show this for the 4 clinician types that use rotations
     if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern"]:
         rotations = st.number_input("How many 28-day rotations will this group cover?", min_value=1, step=1)
 
