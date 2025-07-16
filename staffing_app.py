@@ -7,11 +7,11 @@ st.title("📊 Neurocritical Care Staffing Model Calculator")
 
 st.markdown("""
 ### Step 1: Add Clinician Groups
-Select clinician type, specify how many **rotations (non-APP)** or **APPs (for APP groups)**, and the app will estimate day/night contributions.
+Select clinician type, and the app will estimate day/night contributions based on your inputs.
 """)
 
 st.markdown(
-    "> **Note:** Physicians contribute per 28-day rotation. APPs contribute monthly. For 'Other', select your preferred mode."
+    "> **Note:** Physicians contribute per 28-day rotation. APPs contribute monthly. Fellows contribute nights only. For 'Other', select your preferred mode."
 )
 
 CLINICIAN_TYPES = [
@@ -28,11 +28,8 @@ with st.form("clinician_form"):
     total_day = 0
     total_night = 0
 
-    # Only show this for the 4 clinician types that use rotations
-      if clinician_type:
-        # Only show this for the 4 clinician types that use rotations
-        if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern"]:
-            rotations = st.number_input("How many 28-day rotations will this group cover?", min_value=1, step=1)
+    if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern"]:
+        rotations = st.number_input("How many 28-day rotations will this group cover?", min_value=1, step=1)
 
         if clinician_type == "Madigan":
             day_per_rot, night_per_rot = 10, 12
