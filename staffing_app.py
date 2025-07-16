@@ -25,7 +25,7 @@ with st.form("clinician_form"):
 
     rotations = None
 
-    if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern", "Year 1 Fellow", "Year 2 Fellow"]:
+    if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern"]:
         rotations = st.number_input("How many 28-day rotations will this group cover?", min_value=1, step=1)
 
         if clinician_type == "Madigan":
@@ -36,20 +36,23 @@ with st.form("clinician_form"):
             day_per_rot, night_per_rot = 24, 0
         elif clinician_type == "Neurosurgery Intern":
             day_per_rot, night_per_rot = 14, 6
-        elif clinician_type == "Year 1 Fellow":
-            day_per_rot, night_per_rot = 0, 20
-        elif clinician_type == "Year 2 Fellow":
-            day_per_rot, night_per_rot = 0, 20
 
         total_day = day_per_rot * rotations
         total_night = night_per_rot * rotations
+
+    elif clinician_type == "Year 1 Fellow":
+        total_day = 0
+        total_night = st.number_input("Total night shifts for Year 1 Fellow", min_value=0, step=1)
+
+    elif clinician_type == "Year 2 Fellow":
+        total_day = 0
+        total_night = st.number_input("Total night shifts for Year 2 Fellow", min_value=0, step=1)
 
     elif clinician_type == "APP (Night Only)":
         number_of_apps = st.number_input("Number of APPs (Night Only)", min_value=1, step=1)
         nights_per_month = st.number_input("Nights per APP per month", min_value=1, max_value=30, value=12)
         total_day = 0
         total_night = nights_per_month * 12 * number_of_apps
-        rotations = None
 
     elif clinician_type == "APP (Day & Night)":
         number_of_apps = st.number_input("Number of APPs (Day & Night)", min_value=1, step=1)
@@ -57,7 +60,6 @@ with st.form("clinician_form"):
         nights_per_month = st.number_input("Nights per APP per month", min_value=0, max_value=30, value=2)
         total_day = days_per_month * 12 * number_of_apps
         total_night = nights_per_month * 12 * number_of_apps
-        rotations = None
 
     elif clinician_type == "Other":
         mode = st.radio("How is this clinician scheduled?", ["Per Rotation", "Per Month"])
@@ -73,7 +75,6 @@ with st.form("clinician_form"):
             nights_per_month = st.number_input("Custom night shifts per month", min_value=0, max_value=30, value=2)
             total_day = days_per_month * 12 * num_clinicians
             total_night = nights_per_month * 12 * num_clinicians
-            rotations = None
 
     submitted = st.form_submit_button("Add to Model")
     if submitted:
