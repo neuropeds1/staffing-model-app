@@ -29,8 +29,10 @@ with st.form("clinician_form"):
     total_night = 0
 
     # Only show this for the 4 clinician types that use rotations
-    if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern"]:
-        rotations = st.number_input("How many 28-day rotations will this group cover?", min_value=1, step=1)
+      if clinician_type:
+        # Only show this for the 4 clinician types that use rotations
+        if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern"]:
+            rotations = st.number_input("How many 28-day rotations will this group cover?", min_value=1, step=1)
 
         if clinician_type == "Madigan":
             day_per_rot, night_per_rot = 10, 12
