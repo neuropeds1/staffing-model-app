@@ -49,6 +49,7 @@ with st.form("clinician_form"):
         nights_per_month = st.number_input("Nights per APP per month", min_value=1, max_value=30, value=12)
         total_day = 0
         total_night = nights_per_month * 12 * number_of_apps
+        rotations = None
 
     elif clinician_type == "APP (Day & Night)":
         number_of_apps = st.number_input("Number of APPs (Day & Night)", min_value=1, step=1)
@@ -56,6 +57,7 @@ with st.form("clinician_form"):
         nights_per_month = st.number_input("Nights per APP per month", min_value=0, max_value=30, value=2)
         total_day = days_per_month * 12 * number_of_apps
         total_night = nights_per_month * 12 * number_of_apps
+        rotations = None
 
     elif clinician_type == "Other":
         mode = st.radio("How is this clinician scheduled?", ["Per Rotation", "Per Month"])
@@ -71,6 +73,7 @@ with st.form("clinician_form"):
             nights_per_month = st.number_input("Custom night shifts per month", min_value=0, max_value=30, value=2)
             total_day = days_per_month * 12 * num_clinicians
             total_night = nights_per_month * 12 * num_clinicians
+            rotations = None
 
     submitted = st.form_submit_button("Add to Model")
     if submitted:
@@ -83,6 +86,14 @@ with st.form("clinician_form"):
             clinician_entry["Rotations"] = rotations
         st.session_state.setdefault("clinicians", []).append(clinician_entry)
         st.success(f"Added {clinician_type} with {total_day} day shifts and {total_night} night shifts")
+
+# Optional: Remove last clinician added
+if st.button("🗑️ Remove Last Entry"):
+    if "clinicians" in st.session_state and st.session_state["clinicians"]:
+        removed = st.session_state["clinicians"].pop()
+        st.warning(f"Removed last entry: {removed['Clinician']}")
+    else:
+        st.info("No entries to remove.")
 
 # Calculate Totals
 total_day = sum(item["Day Shifts"] for item in st.session_state.get("clinicians", []))
