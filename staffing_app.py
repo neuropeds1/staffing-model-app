@@ -114,3 +114,4 @@ st.dataframe(pd.DataFrame(st.session_state.get("clinicians", [])))
 
 st.markdown("### 📈 Summary of Coverage vs Models")
 st.dataframe(pd.DataFrame(model_results))
+Updated clinician logic and removed duplicate fellow section
