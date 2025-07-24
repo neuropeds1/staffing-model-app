@@ -55,8 +55,7 @@ def add_entry(name, day, night, extra=None):
     st.session_state["clinicians"].append(new_entry)
     st.success(f"✅ Added {name} with {day} day shifts and {night} night shifts.")
 
-# ==================== Entry Forms ====================
-
+# Forms for each type
 if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern"]:
     with st.form("intern_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
@@ -94,27 +93,11 @@ elif clinician_type == "APP (Day & Night)":
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, days * 12 * number, nights * 12 * number, {"APPs": number})
 
-elif clinician_type == "UW Neurology R2":
-    with st.form("uw_r2_form"):
+elif clinician_type in ["UW Neurology R2", "UW Neurology R3/4", "Madigan Neurology"]:
+    with st.form("neuro_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        day_per_rot = 17  # TODO: update this
-        night_per_rot = 5  # TODO: update this
-        if st.form_submit_button("➕ Add to Model"):
-            add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
-
-elif clinician_type == "UW Neurology R3/4":
-    with st.form("uw_r34_form"):
-        rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        day_per_rot = 17  # TODO: update this
-        night_per_rot = 5  # TODO: update this
-        if st.form_submit_button("➕ Add to Model"):
-            add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
-
-elif clinician_type == "Madigan Neurology":
-    with st.form("madigan_neuro_form"):
-        rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        day_per_rot = 0  # TODO: update this
-        night_per_rot = 0  # TODO: update this
+        day_per_rot = 17
+        night_per_rot = 5
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
 
@@ -134,7 +117,7 @@ elif clinician_type == "Other":
             if st.form_submit_button("➕ Add to Model"):
                 add_entry("Other (Monthly)", days * 12 * number, nights * 12 * number, {"APPs": number})
 
-# ==================== Manage Entries ====================
+# Manage entries
 st.markdown("### 🗑️ Manage Entries")
 if st.button("Remove Last Entry"):
     if st.session_state["clinicians"]:
@@ -143,10 +126,23 @@ if st.button("Remove Last Entry"):
     else:
         st.info("No entries to remove.")
 
-# ==================== Totals and Model Comparison ====================
-total_day = sum(item["Day Shifts"] for item in st.session_state["clinicians"])
-total_night = sum(item["Night Shifts"] for item in st.session_state["clinicians"])
+# Apply 16% buffer to APPs
+app_entries = [item for item in st.session_state["clinicians"] if item.get("APPs") is not None]
+non_app_entries = [item for item in st.session_state["clinicians"] if item.get("APPs") is None]
 
+raw_app_day = sum(item["Day Shifts"] for item in app_entries)
+raw_app_night = sum(item["Night Shifts"] for item in app_entries)
+
+adjusted_app_day = round(raw_app_day * 0.84)
+adjusted_app_night = round(raw_app_night * 0.84)
+
+non_app_day = sum(item["Day Shifts"] for item in non_app_entries)
+non_app_night = sum(item["Night Shifts"] for item in non_app_entries)
+
+total_day = non_app_day + adjusted_app_day
+total_night = non_app_night + adjusted_app_night
+
+# Display totals
 st.markdown("---")
 st.markdown("## 📈 Step 2️⃣: Compare Coverage to Models")
 
@@ -156,6 +152,13 @@ with col1:
 with col2:
     st.metric("Total Night Shifts", total_night)
 
+with st.expander("📉 APP Shift Adjustment (16% buffer for sick calls, PTO, etc.)"):
+    st.write(f"🟦 Raw APP Day Shifts: {raw_app_day}")
+    st.write(f"🟦 Adjusted APP Day Shifts (× 0.84): {adjusted_app_day}")
+    st.write(f"🌙 Raw APP Night Shifts: {raw_app_night}")
+    st.write(f"🌙 Adjusted APP Night Shifts (× 0.84): {adjusted_app_night}")
+
+# Compare to models
 MODELS = {
     "6:2": {"day": 6 * 365, "night": 2 * 365},
     "6:3": {"day": 6 * 365, "night": 3 * 365},
@@ -163,9 +166,7 @@ MODELS = {
     "7:3": {"day": 7 * 365, "night": 3 * 365},
     "8:2": {"day": 8 * 365, "night": 2 * 365},
     "8:3": {"day": 8 * 365, "night": 3 * 365},
-    
 }
-
 results = []
 for model, val in MODELS.items():
     pct_day = round((total_day / val["day"]) * 100, 1)
@@ -183,9 +184,7 @@ for model, val in MODELS.items():
 st.markdown("### 📊 Model Comparison Table")
 st.dataframe(pd.DataFrame(results), use_container_width=True)
 
-# ==================== Clinician Contribution Table ====================
+# Clinician breakdown
 st.markdown("### 👥 Clinician Contribution Table")
-
-# Safely display the full clinician table, regardless of keys
 df = pd.DataFrame(st.session_state["clinicians"])
 st.dataframe(df.fillna("—"), use_container_width=True)
