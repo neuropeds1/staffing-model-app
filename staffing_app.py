@@ -97,7 +97,7 @@ elif clinician_type == "APP (Day & Night)":
 elif clinician_type == "UW Neurology R2":
     with st.form("uw_r2_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        day_per_rot = 18  # TODO: update this
+        day_per_rot = 17  # TODO: update this
         night_per_rot = 5  # TODO: update this
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
@@ -105,7 +105,7 @@ elif clinician_type == "UW Neurology R2":
 elif clinician_type == "UW Neurology R3/4":
     with st.form("uw_r34_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        day_per_rot = 18  # TODO: update this
+        day_per_rot = 17  # TODO: update this
         night_per_rot = 5  # TODO: update this
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
