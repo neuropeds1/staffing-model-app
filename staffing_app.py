@@ -27,6 +27,7 @@ div[data-testid="metric-container"] {
 
 st.title("🧠 Neurocritical Care Staffing Model Calculator")
 
+# Initialize state
 if "clinicians" not in st.session_state:
     st.session_state["clinicians"] = []
 
@@ -54,7 +55,8 @@ def add_entry(name, day, night, extra=None):
     st.session_state["clinicians"].append(new_entry)
     st.success(f"✅ Added {name} with {day} day shifts and {night} night shifts.")
 
-# Standard Intern/Fellow Logic
+# ==================== Entry Forms ====================
+
 if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern"]:
     with st.form("intern_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
@@ -92,34 +94,30 @@ elif clinician_type == "APP (Day & Night)":
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, days * 12 * number, nights * 12 * number, {"APPs": number})
 
-# ✅ NEW: UW Neurology R2
 elif clinician_type == "UW Neurology R2":
     with st.form("uw_r2_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        day_per_rot = 0  # Placeholder
-        night_per_rot = 0  # Placeholder
+        day_per_rot = 0  # TODO: update this
+        night_per_rot = 0  # TODO: update this
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
 
-# ✅ NEW: UW Neurology R3/4
 elif clinician_type == "UW Neurology R3/4":
     with st.form("uw_r34_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        day_per_rot = 0  # Placeholder
-        night_per_rot = 0  # Placeholder
+        day_per_rot = 0  # TODO: update this
+        night_per_rot = 0  # TODO: update this
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
 
-# ✅ NEW: Madigan Neurology
 elif clinician_type == "Madigan Neurology":
     with st.form("madigan_neuro_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        day_per_rot = 0  # Placeholder
-        night_per_rot = 0  # Placeholder
+        day_per_rot = 0  # TODO: update this
+        night_per_rot = 0  # TODO: update this
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
 
-# ✅ "Other"
 elif clinician_type == "Other":
     with st.form("other_form"):
         mode = st.radio("How is this clinician scheduled?", ["Per Rotation", "Per Month"])
@@ -136,7 +134,7 @@ elif clinician_type == "Other":
             if st.form_submit_button("➕ Add to Model"):
                 add_entry("Other (Monthly)", days * 12 * number, nights * 12 * number, {"APPs": number})
 
-# Manage entries
+# ==================== Manage Entries ====================
 st.markdown("### 🗑️ Manage Entries")
 if st.button("Remove Last Entry"):
     if st.session_state["clinicians"]:
@@ -145,7 +143,7 @@ if st.button("Remove Last Entry"):
     else:
         st.info("No entries to remove.")
 
-# Totals and Model Comparison
+# ==================== Totals and Model Comparison ====================
 total_day = sum(item["Day Shifts"] for item in st.session_state["clinicians"])
 total_night = sum(item["Night Shifts"] for item in st.session_state["clinicians"])
 
@@ -162,6 +160,7 @@ MODELS = {
     "6:2": {"day": 6 * 365, "night": 2 * 365},
     "8:3": {"day": 8 * 365, "night": 3 * 365},
 }
+
 results = []
 for model, val in MODELS.items():
     pct_day = round((total_day / val["day"]) * 100, 1)
@@ -179,8 +178,17 @@ for model, val in MODELS.items():
 st.markdown("### 📊 Model Comparison Table")
 st.dataframe(pd.DataFrame(results), use_container_width=True)
 
-# ✅ Enhanced Clinician Contribution Table
+# ==================== Clinician Contribution Table ====================
 st.markdown("### 👥 Clinician Contribution Table")
+
+# Ensure all expected keys exist
+for entry in st.session_state["clinicians"]:
+    entry.setdefault("Clinician", "Unknown")
+    entry.setdefault("Day Shifts", 0)
+    entry.setdefault("Night Shifts", 0)
+    entry.setdefault("Rotations", None)
+    entry.setdefault("APPs", None)
+
 df = pd.DataFrame(st.session_state["clinicians"])[
     ["Clinician", "Day Shifts", "Night Shifts", "Rotations", "APPs"]
 ]
