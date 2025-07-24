@@ -83,7 +83,7 @@ elif clinician_type == "APP (Night Only)":
         number = col1.number_input("Number of APPs", min_value=1, step=1)
         nights = col2.number_input("Nights per APP/month", min_value=1, max_value=30, value=12)
         if st.form_submit_button("➕ Add to Model"):
-            add_entry(clinician_type, 0, nights * 12 * number, {"APPs": number})
+            add_entry(clinician_type, 0, nights * 13 * number, {"APPs": number})
 
 elif clinician_type == "APP (Day & Night)":
     with st.form("app_daynight_form"):
