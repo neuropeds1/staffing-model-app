@@ -181,15 +181,17 @@ st.dataframe(pd.DataFrame(results), use_container_width=True)
 # ==================== Clinician Contribution Table ====================
 st.markdown("### 👥 Clinician Contribution Table")
 
-# Ensure all expected keys exist
+# Ensure all expected keys exist BEFORE creating DataFrame
 for entry in st.session_state["clinicians"]:
-    entry.setdefault("Clinician", "Unknown")
-    entry.setdefault("Day Shifts", 0)
-    entry.setdefault("Night Shifts", 0)
-    entry.setdefault("Rotations", None)
-    entry.setdefault("APPs", None)
+    if "Clinician" not in entry: entry["Clinician"] = "Unknown"
+    if "Day Shifts" not in entry: entry["Day Shifts"] = 0
+    if "Night Shifts" not in entry: entry["Night Shifts"] = 0
+    if "Rotations" not in entry: entry["Rotations"] = None
+    if "APPs" not in entry: entry["APPs"] = None
 
-df = pd.DataFrame(st.session_state["clinicians"])[
-    ["Clinician", "Day Shifts", "Night Shifts", "Rotations", "APPs"]
-]
+df = pd.DataFrame(st.session_state["clinicians"])
+
+# Now safely subset to selected columns
+display_cols = ["Clinician", "Day Shifts", "Night Shifts", "Rotations", "APPs"]
+df = df[display_cols]
 st.dataframe(df.fillna("—"), use_container_width=True)
