@@ -133,14 +133,19 @@ non_app_entries = [item for item in st.session_state["clinicians"] if item.get("
 raw_app_day = sum(item["Day Shifts"] for item in app_entries)
 raw_app_night = sum(item["Night Shifts"] for item in app_entries)
 
+# Apply buffers to both APP and non-APP clinicians
 adjusted_app_day = round(raw_app_day * 0.84)
 adjusted_app_night = round(raw_app_night * 0.84)
 
-non_app_day = sum(item["Day Shifts"] for item in non_app_entries)
-non_app_night = sum(item["Night Shifts"] for item in non_app_entries)
+raw_non_app_day = sum(item["Day Shifts"] for item in non_app_entries)
+raw_non_app_night = sum(item["Night Shifts"] for item in non_app_entries)
 
-total_day = non_app_day + adjusted_app_day
-total_night = non_app_night + adjusted_app_night
+adjusted_non_app_day = round(raw_non_app_day * 0.85)
+adjusted_non_app_night = round(raw_non_app_night * 0.85)
+
+total_day = adjusted_non_app_day + adjusted_app_day
+total_night = adjusted_non_app_night + adjusted_app_night
+
 
 # Display totals
 st.markdown("---")
@@ -152,11 +157,18 @@ with col1:
 with col2:
     st.metric("Total Night Shifts", total_night)
 
-with st.expander("📉 APP Shift Adjustment (16% buffer for sick calls, PTO, etc.)"):
+with st.expander("📉 Shift Adjustments (Buffer for PTO, sick calls, etc.)"):
+    st.subheader("APPs (16% buffer):")
     st.write(f"🟦 Raw APP Day Shifts: {raw_app_day}")
     st.write(f"🟦 Adjusted APP Day Shifts (× 0.84): {adjusted_app_day}")
     st.write(f"🌙 Raw APP Night Shifts: {raw_app_night}")
     st.write(f"🌙 Adjusted APP Night Shifts (× 0.84): {adjusted_app_night}")
+    st.divider()
+    st.subheader("Non-APPs (15% buffer):")
+    st.write(f"🟦 Raw Non-APP Day Shifts: {raw_non_app_day}")
+    st.write(f"🟦 Adjusted Non-APP Day Shifts (× 0.85): {adjusted_non_app_day}")
+    st.write(f"🌙 Raw Non-APP Night Shifts: {raw_non_app_night}")
+    st.write(f"🌙 Adjusted Non-APP Night Shifts (× 0.85): {adjusted_non_app_night}")
 
 # Compare to models
 MODELS = {
