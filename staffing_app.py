@@ -42,7 +42,13 @@ CLINICIAN_TYPES = [
 clinician_type = st.selectbox("Select clinician type", CLINICIAN_TYPES)
 
 def add_entry(name, day, night, extra=None):
-    new_entry = {"Clinician": name, "Day Shifts": day, "Night Shifts": night}
+    new_entry = {
+        "Clinician": name,
+        "Day Shifts": day,
+        "Night Shifts": night,
+        "Rotations": None,
+        "APPs": None
+    }
     if extra:
         new_entry.update(extra)
     st.session_state["clinicians"].append(new_entry)
@@ -75,7 +81,7 @@ elif clinician_type == "APP (Night Only)":
         number = col1.number_input("Number of APPs", min_value=1, step=1)
         nights = col2.number_input("Nights per APP/month", min_value=1, max_value=30, value=12)
         if st.form_submit_button("➕ Add to Model"):
-            add_entry(clinician_type, 0, nights * 12 * number)
+            add_entry(clinician_type, 0, nights * 12 * number, {"APPs": number})
 
 elif clinician_type == "APP (Day & Night)":
     with st.form("app_daynight_form"):
@@ -84,15 +90,14 @@ elif clinician_type == "APP (Day & Night)":
         days = col2.number_input("Days per APP/month", min_value=1, max_value=31, value=11)
         nights = st.number_input("Nights per APP/month", min_value=0, max_value=30, value=2)
         if st.form_submit_button("➕ Add to Model"):
-            add_entry(clinician_type, days * 12 * number, nights * 12 * number)
+            add_entry(clinician_type, days * 12 * number, nights * 12 * number, {"APPs": number})
 
 # ✅ NEW: UW Neurology R2
 elif clinician_type == "UW Neurology R2":
     with st.form("uw_r2_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        # PLACEHOLDER - replace with true values
-        day_per_rot = 0
-        night_per_rot = 0
+        day_per_rot = 0  # Placeholder
+        night_per_rot = 0  # Placeholder
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
 
@@ -100,9 +105,8 @@ elif clinician_type == "UW Neurology R2":
 elif clinician_type == "UW Neurology R3/4":
     with st.form("uw_r34_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        # PLACEHOLDER - replace with true values
-        day_per_rot = 0
-        night_per_rot = 0
+        day_per_rot = 0  # Placeholder
+        night_per_rot = 0  # Placeholder
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
 
@@ -110,9 +114,8 @@ elif clinician_type == "UW Neurology R3/4":
 elif clinician_type == "Madigan Neurology":
     with st.form("madigan_neuro_form"):
         rotations = st.number_input("Number of 28-day rotations", min_value=1, step=1)
-        # PLACEHOLDER - replace with true values
-        day_per_rot = 0
-        night_per_rot = 0
+        day_per_rot = 0  # Placeholder
+        night_per_rot = 0  # Placeholder
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, day_per_rot * rotations, night_per_rot * rotations, {"Rotations": rotations})
 
@@ -131,9 +134,9 @@ elif clinician_type == "Other":
             days = st.number_input("Day shifts per month", min_value=0, max_value=31, value=11)
             nights = st.number_input("Night shifts per month", min_value=0, max_value=30, value=2)
             if st.form_submit_button("➕ Add to Model"):
-                add_entry("Other (Monthly)", days * 12 * number, nights * 12 * number)
+                add_entry("Other (Monthly)", days * 12 * number, nights * 12 * number, {"APPs": number})
 
-# Remove entries
+# Manage entries
 st.markdown("### 🗑️ Manage Entries")
 if st.button("Remove Last Entry"):
     if st.session_state["clinicians"]:
@@ -142,7 +145,7 @@ if st.button("Remove Last Entry"):
     else:
         st.info("No entries to remove.")
 
-# Totals
+# Totals and Model Comparison
 total_day = sum(item["Day Shifts"] for item in st.session_state["clinicians"])
 total_night = sum(item["Night Shifts"] for item in st.session_state["clinicians"])
 
@@ -176,5 +179,9 @@ for model, val in MODELS.items():
 st.markdown("### 📊 Model Comparison Table")
 st.dataframe(pd.DataFrame(results), use_container_width=True)
 
+# ✅ Enhanced Clinician Contribution Table
 st.markdown("### 👥 Clinician Contribution Table")
-st.dataframe(pd.DataFrame(st.session_state["clinicians"]), use_container_width=True)
+df = pd.DataFrame(st.session_state["clinicians"])[
+    ["Clinician", "Day Shifts", "Night Shifts", "Rotations", "APPs"]
+]
+st.dataframe(df.fillna("—"), use_container_width=True)
