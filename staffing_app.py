@@ -190,7 +190,9 @@ for model, val in MODELS.items():
         "Day Covered": total_day,
         "Night Covered": total_night,
         "% Days Covered": f"{pct_day}%",
-        "% Nights Covered": f"{pct_night}%"
+        "% Nights Covered": f"{pct_night}%",
+        "Day Gap": gap_day,
+        "Night Gap": gap_night
     })
 
 st.markdown("### 📊 Model Comparison Table")
