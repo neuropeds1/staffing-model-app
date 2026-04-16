@@ -64,9 +64,9 @@ if clinician_type in ["Madigan", "VM", "Anesthesia Intern", "Neurosurgery Intern
         elif clinician_type == "VM":
             d, n = 16, 6
         elif clinician_type == "Anesthesia Intern":
-            d, n = 24, 0
+            d, n = 23, 0
         elif clinician_type == "Neurosurgery Intern":
-            d, n = 14, 6
+            d, n = 13, 6
         if st.form_submit_button("➕ Add to Model"):
             add_entry(clinician_type, d * rotations, n * rotations, {"Rotations": rotations})
 
